@@ -14,7 +14,7 @@ export async function register(email, password, fullName) {
         full_name: fullName
     }]);
 
-    alert("Register berhasil! Cek email untuk verifikasi.");
+    alert("Register berhasil! Silahkan Login untuk melanjutkan.");
     window.location.href = "index.html";
 }
 
@@ -151,4 +151,5 @@ export async function generateCV(summary) {
 export function logout() {
     localStorage.removeItem('userId');
     window.location.href = 'index.html';
+
 }
