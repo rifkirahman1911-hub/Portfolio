@@ -1,7 +1,7 @@
 // --- SETTING SUPABASE ---
 const supabase = supabase.createClient(
     "https://khexegxtpykpfqdjxvof.supabase.co",
-    "YOUR_ANON_KEY"
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtoZXhlZ3h0cHlrcGZxZGp4dm9mIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MzQ2NDA2MywiZXhwIjoyMDc5MDQwMDYzfQ.pOPAtZX-g-mhdJ8khE9KQRluk9mxmuk6iaMdgS_H2z8";
 );
 
 // --- LOAD DATA SAAT HALAMAN DIBUKA ---
