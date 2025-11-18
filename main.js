@@ -216,7 +216,6 @@ export async function generateCV() {
     const projects = await getProjects();
     const certs = await getCertificates();
 
-    // Bangun HTML sederhana untuk CV
     let html = `
       <html><head><title>Generated CV</title>
       <style>
@@ -233,17 +232,26 @@ export async function generateCV() {
     `;
 
     projects.forEach(p => {
-      html += `<li><strong>${p.title}</strong> — ${p.project_type} ${p.demo_link ? (<a href="${p.demo_link}" target="_blank">${p.demo_link}</a>) : ''}<br/><small>${p.description || ''}</small></li>`;
+      html += `
+        <li>
+          <strong>${p.title}</strong> — ${p.project_type}
+          ${p.demo_link ? <a href="${p.demo_link}" target="_blank">${p.demo_link}</a> : ''}
+          <br/><small>${p.description || ''}</small>
+        </li>`;
     });
 
     html += </ul><h2>Certificates</h2><ul>;
+
     certs.forEach(c => {
-      html += `<li><strong>${c.name}</strong> — ${c.issuer} ${c.issued_date ? (${c.issued_date}) : ''}</li>`;
+      html += `
+        <li>
+          <strong>${c.name}</strong> — ${c.issuer}
+          ${c.issued_date ? (${c.issued_date}) : ''}
+        </li>`;
     });
 
     html += </ul></body></html>;
 
-    // open in new window for preview/print/save as PDF
     const w = window.open('', '_blank');
     w.document.open();
     w.document.write(html);
