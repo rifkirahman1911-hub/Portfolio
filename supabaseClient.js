@@ -2,8 +2,9 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 
 const SUPABASE_URL = "https://khexegxtpykpfqdjxvof.supabase.co";   // ganti dengan URL project
-const PUBLIC_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtoZXhlZ3h0cHlrcGZxZGp4dm9mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0NjQwNjMsImV4cCI6MjA3OTA0MDA2M30.hXG4uJXCY55fFcc0ySLsapt2G3KW7WLXNV3zWoFyZEQ";          // ganti dengan Public anon key
+const SUPABASE_SERVICE_ROLE = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtoZXhlZ3h0cHlrcGZxZGp4dm9mIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MzQ2NDA2MywiZXhwIjoyMDc5MDQwMDYzfQ.pOPAtZX-g-mhdJ8khE9KQRluk9mxmuk6iaMdgS_H2z8";          // ganti dengan Service Role
 
-const supabase = createClient(https://khexegxtpykpfqdjxvof.supabase.co, eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtoZXhlZ3h0cHlrcGZxZGp4dm9mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0NjQwNjMsImV4cCI6MjA3OTA0MDA2M30.hXG4uJXCY55fFcc0ySLsapt2G3KW7WLXNV3zWoFyZEQ);
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE);
+
 
 export default supabase;
