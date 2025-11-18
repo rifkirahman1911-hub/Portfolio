@@ -1,134 +1,165 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
-<meta charset="UTF-8">
-<title>Dashboard - E-Portfolio</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <title>Dashboard</title>
+  <style>
+    body{font-family:Arial;padding:20px;max-width:900px;margin:auto}
+    .card{background:#fff;padding:15px;border-radius:8px;margin-bottom:15px;box-shadow:0 2px 6px rgba(0,0,0,0.06)}
+    input,select,textarea{width:100%;padding:8px;margin:6px 0;border-radius:6px;border:1px solid #ccc}
+    button{padding:8px 12px;border:none;background:#3867d6;color:#fff;border-radius:6px;cursor:pointer}
+    .danger{background:#ff6b6b}
+  </style>
 </head>
 <body>
-<h2>Dashboard</h2>
 
-<h3>Profile</h3>
-<div id="profile"></div>
+<h1>Dashboard</h1>
 <button id="logoutBtn">Logout</button>
 
-<hr>
+<div class="card">
+  <h3>Profile</h3>
+  <div id="profileArea">Loading...</div>
+</div>
 
-<h3>Projects</h3>
-<form id="projectForm">
-  <input type="text" id="projectTitle" placeholder="Project Title" required>
-  <input type="text" id="projectDescription" placeholder="Description" required>
-  <select id="projectType">
-    <option value="final_project">Final Project</option>
-    <option value="weekly_task">Weekly Task</option>
-    <option value="case_study">Case Study</option>
-    <option value="group_project">Group Project</option>
-  </select>
-  <input type="text" id="demoLink" placeholder="Demo Link">
-  <button type="submit">Add Project</button>
-</form>
+<div class="card">
+  <h3>Add Project</h3>
+  <form id="projectForm">
+    <input id="project_title" placeholder="Title" required>
+    <select id="project_type">
+      <option value="Daily">Daily</option>
+      <option value="Weekly">Weekly</option>
+      <option value="Final Project">Final Project</option>
+    </select>
+    <textarea id="project_description" placeholder="Description"></textarea>
+    <input id="project_demo" placeholder="Demo link (optional)">
+    <button type="submit">Add Project</button>
+  </form>
+  <h4>Your Projects</h4>
+  <div id="projectsList">Loading...</div>
+</div>
 
-<ul id="projectsList"></ul>
+<div class="card">
+  <h3>Add Certificate</h3>
+  <form id="certForm">
+    <input id="cert_name" placeholder="Certificate name" required>
+    <input id="cert_issuer" placeholder="Issuer" required>
+    <input id="cert_date" type="date">
+    <input id="cert_file" placeholder="File URL">
+    <button type="submit">Add Certificate</button>
+  </form>
+  <h4>Your Certificates</h4>
+  <div id="certsList">Loading...</div>
+</div>
 
-<hr>
-
-<h3>Certificates</h3>
-<form id="certificateForm">
-  <input type="text" id="certName" placeholder="Certificate Name" required>
-  <input type="text" id="certIssuer" placeholder="Issuer">
-  <input type="date" id="certDate" placeholder="Issued Date">
-  <input type="text" id="certFile" placeholder="File URL">
-  <button type="submit">Add Certificate</button>
-</form>
-
-<ul id="certificatesList"></ul>
-
-<hr>
-
-<h3>Generate CV</h3>
-<textarea id="cvSummary" placeholder="Enter summary for CV"></textarea>
-<button id="generateCVBtn">Generate CV</button>
+<div class="card">
+  <h3>CV Generator</h3>
+  <button id="generateCvBtn">Generate CV</button>
+  <p>CV preview akan terbuka di tab baru (bisa dicetak/simpan sebagai PDF).</p>
+</div>
 
 <script type="module">
-import { logout, getProfile, addProject, getProjects, addCertificate, getCertificates, generateCV } from './main.js';
+  import {
+    checkLogin, logout, getProfile, addProject, getProjects, deleteProject,
+    addCertificate, getCertificates, deleteCertificate, generateCV
+  } from './main.js';
 
-// Load profile
-async function loadProfile() {
+  // init
+  (async function init(){
+    await checkLogin();
+
+    document.getElementById('logoutBtn').addEventListener('click', logout);
+
+    // profile
     const profile = await getProfile();
-    if (profile) {
-        document.getElementById('profile').innerHTML = `
-            <p>Nama: ${profile.full_name}</p>
-            <p>Email: ${profile.email}</p>
-            <p>Phone: ${profile.phone || '-'}</p>
-            <p>Bio: ${profile.bio || '-'}</p>
-        `;
+    document.getElementById('profileArea').innerHTML = profile ? <strong>${profile.full_name||''}</strong><br>${profile.email||''} : 'Profile not found';
+
+    // projects
+    async function loadProjects(){
+      const projects = await getProjects();
+      const html = projects.map(p => `
+        <div style="padding:8px;border-radius:6px;background:#f7f9fc;margin-bottom:8px">
+          <strong>${p.title}</strong> <small>(${p.project_type})</small><br>
+          ${p.description ? <div>${p.description}</div> : ''}
+          ${p.demo_link ? <a href="${p.demo_link}" target="_blank">${p.demo_link}</a> : ''}
+          <div style="margin-top:8px">
+            <button onclick="window.editProject('${p.id}')">Edit</button>
+            <button class="danger" onclick="window.__deleteProject('${p.id}')">Delete</button>
+          </div>
+        </div>
+      `).join('') || '<i>No projects yet</i>';
+      document.getElementById('projectsList').innerHTML = html;
     }
-}
 
-// Logout
-document.getElementById('logoutBtn').addEventListener('click', logout);
+    window.__deleteProject = async (id) => {
+      if (!confirm('Hapus project ini?')) return;
+      await deleteProject(id);
+      loadProjects();
+    };
 
-// Load projects
-async function loadProjects() {
-    const projects = await getProjects();
-    const list = document.getElementById('projectsList');
-    list.innerHTML = '';
-    projects.forEach(p => {
-        const li = document.createElement('li');
-        li.textContent = ${p.title} - ${p.project_type} - ${p.demo_link || '-'};
-        list.appendChild(li);
+    window.editProject = (id) => {
+      // simple prompt edit (can replace with modal later)
+      const title = prompt('New title');
+      const desc = prompt('New description');
+      const type = prompt('New type (Daily/Weekly/Final Project)');
+      if (title) {
+        // call updateProject from main.js
+        import('./main.js').then(m => m.updateProject(id, title, desc, type));
+      }
+    };
+
+    // add project form
+    document.getElementById('projectForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await addProject(
+        project_title.value,
+        project_description.value,
+        project_type.value,
+        project_demo.value
+      );
+      projectForm.reset();
+      loadProjects();
     });
-}
 
-// Add project
-document.getElementById('projectForm').addEventListener('submit', async e => {
-    e.preventDefault();
-    await addProject(
-        document.getElementById('projectTitle').value,
-        document.getElementById('projectDescription').value,
-        document.getElementById('projectType').value,
-        document.getElementById('demoLink').value
-    );
-    document.getElementById('projectForm').reset();
-    loadProjects();
-});
+    await loadProjects();
 
-// Load certificates
-async function loadCertificates() {
-    const certs = await getCertificates();
-    const list = document.getElementById('certificatesList');
-    list.innerHTML = '';
-    certs.forEach(c => {
-        const li = document.createElement('li');
-        li.textContent = ${c.name} - ${c.issuer || '-'} - ${c.issued_date || '-'};
-        list.appendChild(li);
+    // certificates
+    async function loadCerts(){
+      const certs = await getCertificates();
+      const html = certs.map(c => `
+        <div style="padding:8px;border-radius:6px;background:#f7f9fc;margin-bottom:8px">
+          <strong>${c.name}</strong> <small>(${c.issuer})</small><br>
+          ${c.issued_date ? <small>${c.issued_date}</small><br> : ''}
+          ${c.file_url ? <a href="${c.file_url}" target="_blank">${c.file_url}</a> : ''}
+          <div style="margin-top:8px">
+            <button class="danger" onclick="window.__deleteCert('${c.id}')">Delete</button>
+          </div>
+        </div>
+      `).join('') || '<i>No certificates yet</i>';
+      document.getElementById('certsList').innerHTML = html;
+    }
+
+    window.__deleteCert = async (id) => {
+      if (!confirm('Hapus sertifikat ini?')) return;
+      await deleteCertificate(id);
+      loadCerts();
+    };
+
+    document.getElementById('certForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await addCertificate(cert_name.value, cert_issuer.value, cert_date.value, cert_file.value);
+      certForm.reset();
+      loadCerts();
     });
-}
 
-// Add certificate
-document.getElementById('certificateForm').addEventListener('submit', async e => {
-    e.preventDefault();
-    await addCertificate(
-        document.getElementById('certName').value,
-        document.getElementById('certIssuer').value,
-        document.getElementById('certDate').value,
-        document.getElementById('certFile').value
-    );
-    document.getElementById('certificateForm').reset();
-    loadCertificates();
-});
+    await loadCerts();
 
-// Generate CV
-document.getElementById('generateCVBtn').addEventListener('click', async () => {
-    const summary = document.getElementById('cvSummary').value;
-    const result = await generateCV(summary);
-    if (result) alert("CV generated! URL: " + result[0].generated_url);
-});
+    // CV
+    document.getElementById('generateCvBtn').addEventListener('click', async () => {
+      await generateCV();
+    });
 
-// Initial load
-loadProfile();
-loadProjects();
-loadCertificates();
+  })();
 </script>
+
 </body>
 </html>
