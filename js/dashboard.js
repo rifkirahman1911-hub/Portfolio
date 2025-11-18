@@ -1,6 +1,6 @@
 // --- SETTING SUPABASE ---
 const supabase = supabase.createClient(
-    "https://YOUR_PROJECT_ID.supabase.co",
+    "https://khexegxtpykpfqdjxvof.supabase.co",
     "YOUR_ANON_KEY"
 );
 
