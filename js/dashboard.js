@@ -1,95 +1,107 @@
-// --- SETTING SUPABASE ---
-const supabase = supabase.createClient(
-    "https://khexegxtpykpfqdjxvof.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtoZXhlZ3h0cHlrcGZxZGp4dm9mIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MzQ2NDA2MywiZXhwIjoyMDc5MDQwMDYzfQ.pOPAtZX-g-mhdJ8khE9KQRluk9mxmuk6iaMdgS_H2z8";
-);
+import { supabase } from "./supabase.js";
 
-// --- LOAD DATA SAAT HALAMAN DIBUKA ---
-document.addEventListener("DOMContentLoaded", () => {
-    loadData();
-});
+// ======================
+// CEK LOGIN SAAT MASUK DASHBOARD
+// ======================
+async function checkLogin() {
+    const { data } = await supabase.auth.getUser();
+    if (!data.user) {
+        window.location.href = "index.html";
+    }
+}
+checkLogin();
 
-// --- LOGOUT ---
-document.getElementById("logoutBtn").addEventListener("click", async () => {
-    await supabase.auth.signOut();
-    window.location.href = "index.html";
-});
+// ======================
+// LOAD PROFILE DATA
+// ======================
+async function loadProfile() {
+    const { data: session } = await supabase.auth.getUser();
+    const userId = session.user.id;
 
-// --- CREATE (Tambah Data) ---
-document.getElementById("addForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
+    let { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("user_id", userId)
+        .single();
 
-    const name = document.getElementById("name").value;
-    const quantity = document.getElementById("quantity").value;
-
-    const { error } = await supabase
-        .from("items")
-        .insert([{ name, quantity }]);
-
-    if (error) {
-        alert("Gagal menambah data");
-        console.error(error);
+    if (!data) {
+        // Auto create profile jika belum ada
+        await supabase.from("profiles").insert([{ user_id: userId }]);
+        loadProfile();
         return;
     }
 
-    loadData();
-    e.target.reset();
+    document.getElementById("full_name").value = data.full_name || "";
+    document.getElementById("bio").value = data.bio || "";
+}
+loadProfile();
+
+// ======================
+// UPDATE PROFILE (CRUD)
+// ======================
+document.getElementById("save-profile").addEventListener("click", async () => {
+    const { data: session } = await supabase.auth.getUser();
+    const userId = session.user.id;
+
+    const full_name = document.getElementById("full_name").value;
+    const bio = document.getElementById("bio").value;
+
+    await supabase
+        .from("profiles")
+        .update({ full_name, bio })
+        .eq("user_id", userId);
+
+    alert("Profil diperbarui!");
 });
 
-// --- READ (Ambil Data) ---
-async function loadData() {
-    const { data, error } = await supabase
-        .from("items")
+// ======================
+// LOAD PROJECTS
+// ======================
+async function loadProjects() {
+    const { data: session } = await supabase.auth.getUser();
+    const userId = session.user.id;
+
+    const { data } = await supabase
+        .from("projects")
         .select("*")
-        .order("id", { ascending: true });
+        .eq("profile_id", userId);
 
-    const tbody = document.getElementById("tableBody");
-    tbody.innerHTML = "";
+    const list = document.getElementById("project-list");
+    list.innerHTML = "";
 
-    data.forEach(item => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-            <td>${item.id}</td>
-            <td><input value="${item.name}" id="name-${item.id}"></td>
-            <td><input type="number" value="${item.quantity}" id="qty-${item.id}"></td>
-            <td>
-                <button onclick="updateItem(${item.id})">Update</button>
-                <button onclick="deleteItem(${item.id})">Delete</button>
-            </td>
+    data.forEach((p) => {
+        list.innerHTML += `
+            <li>
+                <b>${p.title}</b> - ${p.description}
+                <button onclick="deleteProject('${p.id}')">Delete</button>
+            </li>
         `;
-        tbody.appendChild(tr);
     });
 }
+loadProjects();
 
-// --- UPDATE (Mengubah Data) ---
-async function updateItem(id) {
-    const name = document.getElementById(name-${id}).value;
-    const quantity = document.getElementById(qty-${id}).value;
+// ======================
+// CREATE PROJECT
+// ======================
+document.getElementById("add-project").addEventListener("click", async () => {
+    const title = document.getElementById("project-title").value;
+    const description = document.getElementById("project-description").value;
 
-    const { error } = await supabase
-        .from("items")
-        .update({ name, quantity })
-        .eq("id", id);
+    const { data: session } = await supabase.auth.getUser();
+    const userId = session.user.id;
 
-    if (error) {
-        alert("Gagal update data");
-        console.error(error);
-    } else {
-        loadData();
-    }
-}
+    await supabase.from("projects").insert([
+        { profile_id: userId, title, description }
+    ]);
 
-// --- DELETE (Hapus Data) ---
-async function deleteItem(id) {
-    const { error } = await supabase
-        .from("items")
-        .delete()
-        .eq("id", id);
+    alert("Project ditambahkan!");
+    loadProjects();
+});
 
-    if (error) {
-        alert("Gagal delete data");
-        console.error(error);
-    } else {
-        loadData();
-    }
-}
+// ======================
+// DELETE PROJECT
+// ======================
+window.deleteProject = async function (id) {
+    await supabase.from("projects").delete().eq("id", id);
+    loadProjects();
+};
