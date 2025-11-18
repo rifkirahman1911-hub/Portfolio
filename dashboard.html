@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard - E-Portfolio</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h2>Dashboard</h2>
+
+<h3>Profile</h3>
+<div id="profile"></div>
+<button id="logoutBtn">Logout</button>
+
+<hr>
+
+<h3>Projects</h3>
+<form id="projectForm">
+  <input type="text" id="projectTitle" placeholder="Project Title" required>
+  <input type="text" id="projectDescription" placeholder="Description" required>
+  <select id="projectType">
+    <option value="final_project">Final Project</option>
+    <option value="weekly_task">Weekly Task</option>
+    <option value="case_study">Case Study</option>
+    <option value="group_project">Group Project</option>
+  </select>
+  <input type="text" id="demoLink" placeholder="Demo Link">
+  <button type="submit">Add Project</button>
+</form>
+
+<ul id="projectsList"></ul>
+
+<hr>
+
+<h3>Certificates</h3>
+<form id="certificateForm">
+  <input type="text" id="certName" placeholder="Certificate Name" required>
+  <input type="text" id="certIssuer" placeholder="Issuer">
+  <input type="date" id="certDate" placeholder="Issued Date">
+  <input type="text" id="certFile" placeholder="File URL">
+  <button type="submit">Add Certificate</button>
+</form>
+
+<ul id="certificatesList"></ul>
+
+<hr>
+
+<h3>Generate CV</h3>
+<textarea id="cvSummary" placeholder="Enter summary for CV"></textarea>
+<button id="generateCVBtn">Generate CV</button>
+
+<script type="module">
+import { logout, getProfile, addProject, getProjects, addCertificate, getCertificates, generateCV } from './main.js';
+
+// Load profile
+async function loadProfile() {
+    const profile = await getProfile();
+    if (profile) {
+        document.getElementById('profile').innerHTML = `
+            <p>Nama: ${profile.full_name}</p>
+            <p>Email: ${profile.email}</p>
+            <p>Phone: ${profile.phone || '-'}</p>
+            <p>Bio: ${profile.bio || '-'}</p>
+        `;
+    }
+}
+
+// Logout
+document.getElementById('logoutBtn').addEventListener('click', logout);
+
+// Load projects
+async function loadProjects() {
+    const projects = await getProjects();
+    const list = document.getElementById('projectsList');
+    list.innerHTML = '';
+    projects.forEach(p => {
+        const li = document.createElement('li');
+        li.textContent = ${p.title} - ${p.project_type} - ${p.demo_link || '-'};
+        list.appendChild(li);
+    });
+}
+
+// Add project
+document.getElementById('projectForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    await addProject(
+        document.getElementById('projectTitle').value,
+        document.getElementById('projectDescription').value,
+        document.getElementById('projectType').value,
+        document.getElementById('demoLink').value
+    );
+    document.getElementById('projectForm').reset();
+    loadProjects();
+});
+
+// Load certificates
+async function loadCertificates() {
+    const certs = await getCertificates();
+    const list = document.getElementById('certificatesList');
+    list.innerHTML = '';
+    certs.forEach(c => {
+        const li = document.createElement('li');
+        li.textContent = ${c.name} - ${c.issuer || '-'} - ${c.issued_date || '-'};
+        list.appendChild(li);
+    });
+}
+
+// Add certificate
+document.getElementById('certificateForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    await addCertificate(
+        document.getElementById('certName').value,
+        document.getElementById('certIssuer').value,
+        document.getElementById('certDate').value,
+        document.getElementById('certFile').value
+    );
+    document.getElementById('certificateForm').reset();
+    loadCertificates();
+});
+
+// Generate CV
+document.getElementById('generateCVBtn').addEventListener('click', async () => {
+    const summary = document.getElementById('cvSummary').value;
+    const result = await generateCV(summary);
+    if (result) alert("CV generated! URL: " + result[0].generated_url);
+});
+
+// Initial load
+loadProfile();
+loadProjects();
+loadCertificates();
+</script>
+</body>
+</html>
