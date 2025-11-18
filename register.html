@@ -14,13 +14,22 @@
   </form>
   <p>Sudah punya akun? <a href="index.html">Login</a></p>
 
-  <script type="module" src="./main.js">
-    const form = document.getElementById('registerForm');
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      await register(registerEmail.value, registerPassword.value, fullName.value);
-    });
-  </script>
+  <script type="module">
+  import { register } from "./main.js";
+
+  const form = document.getElementById('registerForm');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById("registerEmail").value;
+    const password = document.getElementById("registerPassword").value;
+    const fullName = document.getElementById("fullName").value;
+
+    await register(email, password, fullName);
+  });
+</script>
 </body>
 </html>
+
 
