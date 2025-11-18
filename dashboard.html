@@ -1,165 +1,201 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
-
-    <link rel="stylesheet" href="css/style.css">
-
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f5f6fa;
-        }
-        header {
-            background: #4b7bec;
-            padding: 15px;
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        header h2 {
-            margin: 0;
-        }
-        header button {
-            background: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .container {
-            padding: 20px;
-            max-width: 900px;
-            margin: auto;
-        }
-
-        .section-box {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            box-shadow: 0 2px 5px #ddd;
-        }
-
-        .section-box h3 {
-            margin: 0 0 15px;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 10px;
-            margin: 8px 0;
-            border-radius: 7px;
-            border: 1px solid #ccc;
-        }
-
-        button {
-            background: #3867d6;
-            border: none;
-            padding: 10px 15px;
-            color: white;
-            border-radius: 7px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        .item {
-            padding: 13px;
-            background: #f1f2f6;
-            border-radius: 7px;
-            margin-top: 10px;
-        }
-
-        .item button {
-            background: #ff4757;
-            margin-left: 5px;
-        }
-
-        #cvResult {
-            padding: 20px;
-            border-radius: 10px;
-            background: white;
-            margin-top: 15px;
-        }
-    </style>
 </head>
-
 <body>
 
-<header>
-    <h2>Dashboard</h2>
-    <button id="logoutBtn">Logout</button>
-</header>
+<h2>Dashboard</h2>
+<button id="logoutBtn">Logout</button>
 
-<div class="container">
+<hr>
 
-    <!-- ======================= PROJECTS ======================= -->
-    <div class="section-box">
-        <h3>Projects</h3>
+<!-- =============================
+     PROFILE PREVIEW
+============================== -->
+<h3>Your Profile</h3>
+<div id="profileBox">Loading profile...</div>
 
-        <!-- FORM PROJECT -->
-        <form id="projectForm">
-            <input type="text" id="pname" placeholder="Nama Project" required>
-            
-            <select id="ptype" required>
-                <option value="">Pilih Jenis Project</option>
-                <option value="Weekly">Weekly</option>
-                <option value="Harian">Harian</option>
-                <option value="Final Project">Final Project</option>
-            </select>
+<hr>
 
-            <textarea id="pdesc" placeholder="Deskripsi Project"></textarea>
+<!-- =============================
+     ADD PROJECT
+============================== -->
+<h3>Add Project</h3>
+<form id="projectForm">
+    <input type="text" id="pTitle" placeholder="Project Title" required><br><br>
+    <textarea id="pDesc" placeholder="Description" required></textarea><br><br>
 
-            <button type="submit">Tambah Project</button>
-        </form>
+    <select id="pType">
+        <option value="Daily">Daily</option>
+        <option value="Weekly">Weekly</option>
+        <option value="Final Project">Final Project</option>
+    </select><br><br>
 
-        <h4>List Projects</h4>
-        <div id="projectList"></div>
-    </div>
+    <input type="text" id="pDemo" placeholder="Demo Link"><br><br>
+
+    <button type="submit">Add Project</button>
+</form>
+
+<h3>Your Projects</h3>
+<div id="projectList">Loading...</div>
+
+<hr>
+
+<!-- =============================
+     ADD CERTIFICATE
+============================== -->
+<h3>Add Certificate</h3>
+
+<form id="certForm">
+    <input type="text" id="cName" placeholder="Certificate Name" required><br><br>
+    <input type="text" id="cIssuer" placeholder="Issuer" required><br><br>
+    <input type="date" id="cDate" required><br><br>
+    <input type="text" id="cFile" placeholder="Certificate File URL"><br><br>
+    <button type="submit">Add Certificate</button>
+</form>
+
+<h3>Your Certificates</h3>
+<div id="certificateList">Loading...</div>
+
+<hr>
+
+<!-- =============================
+     CV GENERATOR
+============================== -->
+<h3>Generate CV</h3>
+
+<textarea id="cvSummary" placeholder="Ringkasan singkat untuk CV"></textarea><br><br>
+<button id="cvBtn">Generate CV</button>
+
+<script type="module">
+import { 
+    checkLogin,
+    logout,
+    getProfile,
+    addProject,
+    getProjects,
+    deleteProject,
+    addCertificate,
+    getCertificates,
+    deleteCertificate,
+    generateCV
+} from "./main.js";
 
 
-    <!-- ======================= CERTIFICATES ======================= -->
-    <div class="section-box">
-        <h3>Certificates</h3>
-
-        <!-- FORM CERTIFICATE -->
-        <form id="certForm">
-            <input type="text" id="cname" placeholder="Nama Sertifikat" required>
-            <input type="text" id="issuer" placeholder="Penerbit Sertifikat" required>
-            <button type="submit">Tambah Sertifikat</button>
-        </form>
-
-        <h4>List Certificates</h4>
-        <div id="certList"></div>
-    </div>
+// ===========================
+// CHECK LOGIN
+// ===========================
+await checkLogin();
 
 
-    <!-- ======================= CV GENERATOR ======================= -->
-    <div class="section-box">
-        <h3>CV Generator</h3>
-        <button id="generateCV">Generate CV</button>
+// ===========================
+// LOGOUT BUTTON
+// ===========================
+document.getElementById("logoutBtn").addEventListener("click", logout);
 
-        <div id="cvResult"></div>
-    </div>
 
-</div>
+// ===========================
+// LOAD PROFILE
+// ===========================
+async function loadProfile() {
+    const p = await getProfile();
+    document.getElementById("profileBox").innerHTML = `
+        <strong>${p.full_name}</strong><br>
+        ${p.email}
+    `;
+}
+loadProfile();
 
-<!-- JS -->
-<script type="module" src="js/supabaseClient.js"></script>
-<script type="module" src="js/dashboard.js"></script>
-<script type="module" src="js/cvGenerator.js"></script>
 
-<script>
-    // LOGOUT
-    document.getElementById("logoutBtn").addEventListener("click", async () => {
-        const { error } = await supabase.auth.signOut();
-        window.location.href = "index.html";
-    });
+// ===========================
+// PROJECTS CRUD
+// ===========================
+document.getElementById("projectForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    await addProject(
+        pTitle.value,
+        pDesc.value,
+        pType.value,
+        pDemo.value
+    );
+
+    loadProjects();
+});
+
+async function loadProjects() {
+    const list = await getProjects();
+
+    document.getElementById("projectList").innerHTML =
+        list.map(p => `
+            <div>
+                <strong>${p.title}</strong> (${p.project_type})
+                <button onclick="deleteProj(${p.id})">Delete</button>
+                <br>${p.description}<br>
+                <a href="${p.demo_link}" target="_blank">${p.demo_link}</a>
+                <hr>
+            </div>
+        `).join("");
+}
+
+window.deleteProj = async (id) => {
+    await deleteProject(id);
+    loadProjects();
+};
+
+loadProjects();
+
+
+// ===========================
+// CERTIFICATES CRUD
+// ===========================
+document.getElementById("certForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    await addCertificate(
+        cName.value,
+        cIssuer.value,
+        cDate.value,
+        cFile.value
+    );
+
+    loadCertificates();
+});
+
+async function loadCertificates() {
+    const certs = await getCertificates();
+
+    document.getElementById("certificateList").innerHTML =
+        certs.map(c => `
+            <div>
+                <strong>${c.name}</strong>
+                (${c.issuer} - ${c.issued_date})
+                <br>
+                <a href="${c.file_url}" target="_blank">${c.file_url}</a>
+                <br>
+                <button onclick="delCert(${c.id})">Delete</button>
+                <hr>
+            </div>
+        `).join("");
+}
+
+window.delCert = async (id) => {
+    await deleteCertificate(id);
+    loadCertificates();
+};
+
+loadCertificates();
+
+
+// ===========================
+// CV GENERATOR
+// ===========================
+document.getElementById("cvBtn").addEventListener("click", async () => {
+    await generateCV(cvSummary.value);
+});
 </script>
 
 </body>
