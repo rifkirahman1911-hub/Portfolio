@@ -235,22 +235,22 @@ export async function generateCV() {
       html += `
         <li>
           <strong>${p.title}</strong> — ${p.project_type}
-          ${p.demo_link ? <a href="${p.demo_link}" target="_blank">${p.demo_link}</a> : ''}
+          ${p.demo_link ? `<a href="${p.demo_link}" target="_blank">${p.demo_link}</a>` : ''}
           <br/><small>${p.description || ''}</small>
         </li>`;
     });
 
-    html += </ul><h2>Certificates</h2><ul>;
+    html += `</ul><h2>Certificates</h2><ul>`;
 
     certs.forEach(c => {
       html += `
         <li>
           <strong>${c.name}</strong> — ${c.issuer}
-          ${c.issued_date ? (${c.issued_date}) : ''}
+          ${c.issued_date ? `(${c.issued_date})` : ''}
         </li>`;
     });
 
-    html += </ul></body></html>;
+    html += `</ul></body></html>`;
 
     const w = window.open('', '_blank');
     w.document.open();
@@ -261,3 +261,4 @@ export async function generateCV() {
     alert('Generate CV gagal: ' + (err.message || err));
   }
 }
+
