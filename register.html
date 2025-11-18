@@ -14,8 +14,7 @@
   </form>
   <p>Sudah punya akun? <a href="index.html">Login</a></p>
 
-  <script type="module">
-    import { register } from './main.js';
+  <script type="module" src="./main.js">
     const form = document.getElementById('registerForm');
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -24,3 +23,4 @@
   </script>
 </body>
 </html>
+
